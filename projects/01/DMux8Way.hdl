@@ -16,5 +16,35 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
+    Not(in=sel[0], out=notSel0);
+    Not(in=sel[1], out=notSel1);
+    Not(in=sel[2], out=notSel2);
+
+    And(a=in, b=notSel2, out=inNotSel2);
+    Xor(a=sel[1], b=sel[0], out=xorSel10);
+    And(a=inNotSel2, b=xorSel10, out=a);
+
+    And(a=in, b=sel[0], out=inSel0);
+    Xor(a=sel[2], b=sel[1], out=xorSel21);
+    And(a=inSel0, b=xorSel21, out=b);
+    
+    And(a=in, b=sel[1], out=inSel1);
+    Xor(a=sel[2], b=sel[0], out=xorSel20);
+    And(a=inSel1, b=xorSel20, out=c);
+    
+    And(a=sel[1], b=sel[0], out=Sel10);
+    And(a=inNotSel2, b=Sel10, out=d);
+
+    And(a=in, b=sel[2], out=inSel2);
+    And(a=inSel2, b=xorSel10, out=e);
+
+    And(a=notSel1, b=sel[0], out=sel0NotSel1);
+    And(a=sel0NotSel1, b=inSel2, out=f);
+
+    And(a=sel[1], b=notSel0, out=sel1NotSel0);
+    And(a=sel1NotSel0, b=inSel2, out=g);
+
+    And(a=inSel2, b=Sel10, out=h);
+    
     // Put your code here:
 }
