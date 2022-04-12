@@ -43,23 +43,23 @@ CHIP ALU {
 
     PARTS:
     // Put you code here:
-    Mux16(a=x, b[0..15]=false, sel=zx, out=zX);
-    Not16(in=zX, out=notZx);
-    Mux16(a=zX, b=notZx, sel=nx, out=znX);
+    Mux16(a=x, b[0..15]=false, sel=zx, out=zX);     // zx가 1이라면 x를 0으로 초기화한다. 
+    Not16(in=zX, out=notZx);                        
+    Mux16(a=zX, b=notZx, sel=nx, out=znX);          // nx가 1이라면 현시점의 x값을 반전시킨다. 
 
-    Mux16(a=y, b[0..15]=false, sel=zy, out=zY);
+    Mux16(a=y, b[0..15]=false, sel=zy, out=zY);     // zy가 1이라면 y를 0으로 초기화한다. 
     Not16(in=zY, out=notZy);
-    Mux16(a=zY, b=notZy, sel=ny, out=znY);
+    Mux16(a=zY, b=notZy, sel=ny, out=znY);          // ny가 1이라면 현시점의 y값을 반전시킨다. 
 
-    And16(a=znX, b=znY, out=andznXY);
+    And16(a=znX, b=znY, out=andznXY);               
     Add16(a=znX, b=znY, out=addznXY);
-    Mux16(a=andznXY, b=addznXY, sel=f, out=fout);
+    Mux16(a=andznXY, b=addznXY, sel=f, out=fout);       // f값으로 and, add 중 어떤 연산을 할지 결정한다. 
     Not16(in=fout, out=nfout);
-    Mux16(a=fout, b=nfout, sel=no, out[0..7]=out1, out[8..15]=out2, out[15]=ng, out=out);
+    Mux16(a=fout, b=nfout, sel=no, out[0..7]=out1, out[8..15]=out2, out[15]=ng, out=out);   // no값이 1이면 결과값을 반전시킨다. 최종 출력값이 음수라면 ng를 1로 초기화한다. 
 
     Or8Way(in=out1, out=orOut1);
     Or8Way(in=out2, out=orOut2);
-    Or(a=orOut1, b=orOut2, out=orOut);
+    Or(a=orOut1, b=orOut2, out=orOut);      // 출력값을 앞, 뒤로 나누어서 or연산을 해, 1이 존재하는지 검사한다. 
 
-    Not(in=orOut, out=zr);
+    Not(in=orOut, out=zr);  //  or연산의 최종값에 따라서 zr을 결정한다. 
 }
