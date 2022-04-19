@@ -40,4 +40,39 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    Mux16(a=instruction, b=ALUout, sel=instruction[15], out=AorC);      // 명령어의 종류(A or C)를 적용시킨다. 
+    Not(in=instruction[15], out=A);
+    Or(a=A, b=instruction[5], out=loadA);                               // i'+ d1
+    ARegister(in=AorC, load=loadA, out=address, out[0..14]=addressM);   // A 명령어이거나 d1이 1인 경우에 A 레지스터에 새로운 값을 저장한다. 15비트 주소 값을 출력한다. 
+
+    And(a=instruction[15], b=instruction[3], out=writeM);               // i * d3 -> C 명령어이고 d3가 1인 경우에 결과값을 확인하고 메모리에 저장한다. 
+
+    Mux16(a=address, b=inM, sel=instruction[12], out=y);                // A 레지스터에 저장된 주소값을 사용할지, CPU의 입력값을 사용할지 a비트가 결정한다. 
+
+    And(a=instruction[15], b=instruction[4], out=loadD);                // i * d2 -> C 명령어이고 d2가 1인 경우에 D 레지스터에 이전 결과값을 저장한다. 
+    DRegister(in=ALUout, load=loadD, out=x);
+
+    ALU(x=x, y=y, zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8], f=instruction[7], 
+        no=instruction[6], out=outM, out=ALUout, zr=ALUzr, ng=ALUng);   // c1 ~ c6로 연산 종류를 결정한다. out=0 -> zr=1, out<0 -> ng=1
+                                                                        
+    Or(a=ALUzr, b=ALUng, out=outUpto0);                                 // out<=0   
+    Not(in=outUpto0, out=outGThan0);                                    // out>0
+    Not(in=ALUng, out=outDownto0);                                      // out>=0
+    Not(in=ALUzr, out=outNot0);                                         // out!=0
+
+    Mux(a=false, b=outGThan0, sel=instruction[0], out=muxAB);           
+    Mux(a=ALUzr, b=outDownto0, sel=instruction[0], out=muxCD);
+    Mux(a=muxAB, b=muxCD, sel=instruction[1], out=muxABCD);
+
+    Mux(a=ALUng, b=outNot0, sel=instruction[0], out=muxEF);
+    Mux(a=outUpto0, b=true, sel=instruction[0], out=muxGH);
+    Mux(a=muxEF, b=muxGH, sel=instruction[1], out=muxEFGH);
+
+    Mux(a=muxABCD, b=muxEFGH, sel=instruction[2], out=jmp);             // j1, j2, j3으로 가능한 점프 조건 결정
+    
+    And(a=instruction[15], b=jmp, out=PCload);                          // i * (해당하는 점프 조건) -> PC의 load비트
+    Not(in=PCload, out=PCinc);                                          // PC의 load비트가 와 inc비트는 서로 반대다. 
+    
+    PC(in=address, load=PCload, inc=PCinc, reset=reset, out[0..14]=pc);     // A 레지스터에 저장된 주소값을 로드할지, 기존 명령어 주소를 increase할지 결정
 }
