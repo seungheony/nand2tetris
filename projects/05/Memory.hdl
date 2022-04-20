@@ -27,32 +27,11 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
-    DMux(in=load, sel=address[14], a=ram, b=screen);
-    RAM16K(in=in, load=ram, address=address[0..13], out=ramOut);
-    
-    DMux(in=screen, sel=address[12], a=screen1, b=screen2);
+    DMux4Way(in=load, sel=address[13..14], a=ramA, b=ramB, c=screen, d=keyboard);           // 최상위, 차상위 비트로 어떤 메모리에 접근할지 결정된다. 
+    Or(a=ramA, b=ramB, out=ram);                                                            // ramA와 ramB는 같은 16K 메모리이므로 합연산으로 load를 통일한다. 
 
-    RAM4K(in=in, load=screen1, address=address[0..11], out=screen1Out);
-    RAM4K(in=in, load=screen2, address=address[0..11], out=screen2Out);    
-    Mux16(a=screen1Out, b=screen2Out, sel=address[12], out=screenOut);
-
-    Mux16(a=ramOut, b=screenOut, sel=address[14], out=out);
-
-    // And(a=address[14], b=address[13], out=addressAnd);
-    // Or8Way(in=address[5..12], out=addressOr1);
-    // Or8Way(in[0..4]=address[0..4], in[5..7]=false, out=addressOr2);
-    // Or(a=addressOr1, b=addressOr2, out=addressOr);
-    // Not(in=addressOr, out=notAddressOr);
-
-    // And(a=addressAnd, b=notAddressOr, out=keyboard);
-    // Keyboard(out=key);
-    // Register(in=key, load=keyboard, out=Kout);
+    RAM16K(in=in, load=ram, address=address[0..13], out=ramOut);                            // ram의 선택비트는 1bit로 통일했기 때문에 주소값으로 14bit를 넘긴다. 
+    Screen(in=in, load=screen, address=address[0..12], out=screenOut);                      // screen의 용량은 8K이므로 주소값으로 13bit를 넘긴다. 
+    Keyboard(out=keyOut);
+    Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=keyOut, sel=address[13..14], out=out);     // 최초 선택 비트로 접근한 메모리의 출력값을 out으로 넘긴다. 
 }
-
-    // DMux4Way(in=load, sel=address[0..1], a=ram0, b=ram1, c=ram2, d=ram3);
-    // RAM4K(in=in, load=ram0, address=address[2..13], out=out0);
-    // RAM4K(in=in, load=ram1, address=address[2..13], out=out1);
-    // RAM4K(in=in, load=ram2, address=address[2..13], out=out2);
-    // RAM4K(in=in, load=ram3, address=address[2..13], out=out3);
-    // Mux4Way16(a=out0, b=out1, c=out2, d=out3, sel=address[0..1], out=out);
