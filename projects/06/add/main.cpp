@@ -1,10 +1,13 @@
-#include "Assembler.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "Code.hpp"
+#include "Parser.hpp"
 
 int main(void){
-    Assembler *assembler = new Assembler("Add.asm");
-    // a->print_assembly();
+    Code *assembler = new Code("Pong.asm");
+    // Code assembler("Add.asm");
+    // assembler.first_pass();
+    // assembler.second_pass();
+    
+    assembler->write_binary();
+    
     return 0;
 }
