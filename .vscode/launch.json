@@ -4,8 +4,6 @@
     // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
     "version": "0.2.0",
     "configurations": [
-        
-        
         {
             "name": "(lldb) Launch",
             "type": "cppdbg",
@@ -17,7 +15,9 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "logging": { "trace": true, "traceResponse": true }
+            "logging": { "trace": true, "traceResponse": true },
+            "preLaunchTask": "C/C++: clang++ build active file"
         }
+
     ]
 }
