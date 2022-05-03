@@ -18,6 +18,5 @@
             "logging": { "trace": true, "traceResponse": true },
             "preLaunchTask": "C/C++: clang++ build active file"
         }
-
     ]
 }

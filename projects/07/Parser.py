@@ -22,8 +22,26 @@ class Parser:
     def advance(self):
         self._cur_index+=1
 
-    #def commandType(self):
-
+    def commandType(self):
+        instruction = self._vm_instruction[self._cur_index].split()[0]
+        arithmetic = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
+        if instruction in arithmetic:
+            return 'C_ARITHMETIC'
+        elif instruction == 'push':
+        
+        elif instruction == 'pop':
+        
+        elif instruction == '':
+        
+        elif instruction == '':
+        
+        elif instruction == '':
+        
+        elif instruction == '':
+        
+        elif instruction == '':
+        
+        elif instruction == '':
     #def arg1(self):
 
     #def arg2(self):
