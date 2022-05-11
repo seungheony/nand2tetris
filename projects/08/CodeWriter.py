@@ -67,7 +67,7 @@ class CodeWriter:
             self._true_counter += 1
             self._write_file.write('@SP\n')
             self._write_file.write('A=M\n')
-            self._write_file.write('M=-1\n')        #TRUE가 -1?
+            self._write_file.write('M=-1\n')
             self._write_file.write('(END_%d)\n' % self._end_counter)
             self._end_counter += 1
             self._write_file.write('@SP\n')
@@ -90,7 +90,7 @@ class CodeWriter:
             self._true_counter += 1
             self._write_file.write('@SP\n')
             self._write_file.write('A=M\n')
-            self._write_file.write('M=-1\n')        #TRUE가 -1?
+            self._write_file.write('M=-1\n')
             self._write_file.write('(END_%d)\n' % self._end_counter)
             self._end_counter += 1
             self._write_file.write('@SP\n')
@@ -132,7 +132,6 @@ class CodeWriter:
                 self._write_file.write('M=M+1\n')
             elif segment=='argument':
                 self._write_file.write('@ARG\n')
-                # self._write_file.write('A=M+%s\n' % index)
                 self._write_file.write('A=M\n')
                 for i in range(int(index)):
                     self._write_file.write('A=A+1\n')
@@ -144,7 +143,6 @@ class CodeWriter:
                 self._write_file.write('M=M+1\n')
             elif segment=='local':
                 self._write_file.write('@LCL\n')
-                # self._write_file.write('A=M+%s\n' % index)
                 self._write_file.write('A=M\n')
                 for i in range(int(index)):
                     self._write_file.write('A=A+1\n')
@@ -203,7 +201,6 @@ class CodeWriter:
                 self._write_file.write('M=M+1\n')
             elif segment=='temp':
                 self._write_file.write('@5\n')
-                # self._write_file.write('A=A+%s\n' % index)
                 for i in range(int(index)):
                     self._write_file.write('A=A+1\n')
                 self._write_file.write('D=M\n')
@@ -287,5 +284,143 @@ class CodeWriter:
                     self._write_file.write('A=A+1\n')
                 self._write_file.write('M=D\n')
             else:
-                pass
-                
+                pass                
+    def writeLabel(self, label):
+        self._write_file.write('(%s)\n' % label)
+    def writeGoto(self, label):
+        self._write_file.write('@%s\n' % label)
+        self._write_file.write('0;JMP\n')
+    def writeIf(self, label):
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M-1\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@%s\n' % label)
+        self._write_file.write('D;JNE\n')
+
+    def writeCall(self, functionName, numArgs):
+        self._write_file.write('@RETURN_%d\n' % self._return_counter)
+        self._write_file.write('D=A\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M+1\n')
+
+        self._write_file.write('@LCL\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M+1\n')
+
+        self._write_file.write('@ARG\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M+1\n')
+
+        self._write_file.write('@THIS\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M+1\n')
+
+        self._write_file.write('@THAT\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M+1\n')
+
+        self._write_file.write('@SP\n')
+        self._write_file.write('D=M-%d\n' % numArgs)
+        self._write_file.write('D=D-5\n')
+        self._write_file.write('@ARG\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@LCL\n')
+        self._write_file.write('M=D\n')
+
+        self.writeGoto(functionName)
+
+        self._write_file.write('(RETURN_%d)\n' % self._return_counter)
+        self._return_counter+=1
+
+    def writeReturn(self):
+        self._write_file.write('@LCL\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@13\n')
+        self._write_file.write('M=D\n')
+        self._write_file.write('@5\n')
+        self._write_file.write('D=D-A\n')
+        self._write_file.write('A=D\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@14\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=M-1\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@ARG\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@ARG\n')
+        self._write_file.write('D=M+1\n')
+        self._write_file.write('@SP\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@13\n')
+        self._write_file.write('M=M-1\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('A=D\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@THAT\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@13\n')
+        self._write_file.write('M=M-1\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('A=D\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@THIS\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@13\n')
+        self._write_file.write('M=M-1\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('A=D\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@ARG\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@13\n')
+        self._write_file.write('M=M-1\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('A=D\n')
+        self._write_file.write('D=M\n')
+        self._write_file.write('@LCL\n')
+        self._write_file.write('M=D\n')
+
+        self._write_file.write('@14\n')
+        self._write_file.write('A=M\n')
+        self._write_file.write('0;JMP\n')
+
+    def writeFunction(self, functionName, numLocals):
+        self._write_file.write('(%s)\n' % functionName)
+        for i in range(int(numLocals)):
+            self._write_file.write('D=0\n')
+            self._write_file.write('@SP\n')
+            self._write_file.write('A=M\n')
+            self._write_file.write('M=D\n')
+            self._write_file.write('@SP\n')
+            self._write_file.write('M=M+1\n')
