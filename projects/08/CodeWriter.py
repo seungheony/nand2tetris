@@ -5,7 +5,7 @@ class CodeWriter:
         self._file_name = self._file_name.split('/').pop()
         self._true_counter = 1
         self._end_counter = 1
-
+        self._return_counter = 1
     def writeArithmetic(self, command):
         if command=='add':
             self._write_file.write('@SP\n')
@@ -340,8 +340,9 @@ class CodeWriter:
         self._write_file.write('M=M+1\n')
 
         self._write_file.write('@SP\n')
-        self._write_file.write('D=M-%d\n' % numArgs)
-        self._write_file.write('D=D-5\n')
+        self._write_file.write('D=M\n')
+        for i in range(int(numArgs)+5):
+            self._write_file.write('D=D-1\n')
         self._write_file.write('@ARG\n')
         self._write_file.write('M=D\n')
         self._write_file.write('@SP\n')
